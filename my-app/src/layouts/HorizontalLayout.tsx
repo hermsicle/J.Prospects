@@ -1,0 +1,31 @@
+import React from 'react';
+import { useColorModeValue } from '@/components/ui/color-mode';
+import { Box } from '@chakra-ui/react';
+import SideBar from '@/components/side-bar/SideBar';
+
+import { AppRoutesProtected } from '@/routes/AppRoutes';
+import NavBar from '../components/nav-bar/NavBar';
+
+const HorizontalLayout = () => {
+  return (
+    <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>
+      {/* SideBar */}
+      <SideBar />
+
+      {/* Main  Content Routes */}
+      <Box ml={{ base: 0, md: 280 }}>
+        <NavBar />
+      </Box>
+      <Box
+        ml={{ base: 0, md: 280 }}
+        p="4"
+        // border="1px solid black"
+        // height="calc(100vh - 70px)"
+      >
+        <AppRoutesProtected />
+      </Box>
+    </Box>
+  );
+};
+
+export default HorizontalLayout;
