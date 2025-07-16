@@ -20,8 +20,8 @@ import { Hub } from 'aws-amplify/utils';
 const awsConfig: any = {
   Auth: {
     Cognito: {
-      userPoolId: 'us-west-1_BbhOQTGkJ',
-      userPoolClientId: '75ncfjdofs647p1sckbtma9tg7',
+      userPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID,
+      userPoolClientId: import.meta.env.VITE_COGNITO_USER_POOL_CLIENT_ID,
       passwordFormat: {
         minLength: 8,
         requireLowercase: true,
