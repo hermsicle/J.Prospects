@@ -14,7 +14,6 @@ import '@aws-amplify/ui-react/styles.css';
 
 import { Amplify } from 'aws-amplify';
 
-import { AppRoutesNotProtected } from './routes/AppRoutes.tsx';
 import { Hub } from 'aws-amplify/utils';
 
 const awsConfig: any = {
@@ -35,60 +34,11 @@ const awsConfig: any = {
 
 Amplify.configure(awsConfig);
 
-function Root() {
-  const { route } = useAuthenticator();
-  const navigate = useNavigate();
-
-  const navigateToHome = () => {
-    navigate('/home');
-  };
-
-  const navigateToLanding = () => {
-    navigate('/');
-  };
-
-  // Hub.listen('auth', ({ payload }) => {
-  //   switch (payload.event) {
-  //     case 'signedIn':
-  //       console.log('user have been signedIn successfully.');
-  //       navigateToHome();
-  //       break;
-  //     case 'signedOut':
-  //       console.log('user have been signedOut successfully.');
-  //       navigateToLanding();
-  //       break;
-  //     case 'tokenRefresh':
-  //       console.log('auth tokens have been refreshed.');
-  //       break;
-  //     case 'tokenRefresh_failure':
-  //       console.log('failure while refreshing auth tokens.');
-  //       break;
-  //     case 'signInWithRedirect':
-  //       console.log('signInWithRedirect API has successfully been resolved.');
-  //       break;
-  //     case 'signInWithRedirect_failure':
-  //       console.log('failure while trying to resolve signInWithRedirect API.');
-  //       break;
-  //   }
-  // });
-
-  if (route !== 'authenticated') {
-    // return <Authenticator signUpAttributes={['email']} />;
-    return <AppRoutesNotProtected />;
-  }
-
-  if (route === 'authenticated') {
-    return <App />;
-  }
-
-  return <></>;
-}
-
 createRoot(document.getElementById('root')!).render(
   <Authenticator.Provider>
     <Provider>
       <BrowserRouter>
-        <Root />
+        <App />
       </BrowserRouter>
     </Provider>
   </Authenticator.Provider>

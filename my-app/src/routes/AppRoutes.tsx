@@ -1,6 +1,6 @@
 import React, { Children } from 'react';
 
-import { Routes, Route, useNavigate, Navigate } from 'react-router';
+import { Routes, Route, useNavigate, Navigate, Outlet } from 'react-router';
 
 import Home from '@/pages/home/Home';
 import Companies from '@/pages/companies/Companies';
@@ -8,37 +8,19 @@ import Settings from '@/pages/settings/Settings';
 import CompanyDetails from '@/pages/company-details/CompanyDetails';
 import Resumes from '@/pages/resumes/Resumes';
 import LandingPage from '@/pages/landing/Landing';
-import { Authenticator } from '@aws-amplify/ui-react';
+import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react';
 import { Box, Button, Heading, VStack } from '@chakra-ui/react';
 import { useColorModeValue } from '@/components/ui/color-mode';
 
-const appRoutesProtected = [
-  {
-    path: '/home',
-    element: <Home />,
-  },
-  {
-    path: '/companies',
-    element: <Companies />,
-  },
-  {
-    path: '/company/:id',
-    element: <CompanyDetails />,
-  },
-  {
-    path: '/resumes',
-    element: <Resumes />,
-  },
-  {
-    path: '/settings',
-    element: <Settings />,
-  },
-];
-
-const AuthWrapper = () => {
+export const AuthWrapper = () => {
   const navigate = useNavigate();
   const bgColor = useColorModeValue('gray.50', 'gray.900');
   const logoUrl = '/logo192.png'; // replace with your logo path or URL
+  const { authStatus } = useAuthenticator((context) => [context.user]);
+
+  if (authStatus === 'authenticated') {
+    return <Navigate to="/home" />;
+  }
 
   return (
     <Box
@@ -86,7 +68,30 @@ const AuthWrapper = () => {
   );
 };
 
-const appRoutesNotProtected = [
+export const appRoutesProtected = [
+  {
+    path: '/home',
+    element: <Home />,
+  },
+  {
+    path: '/companies',
+    element: <Companies />,
+  },
+  {
+    path: '/company/:id',
+    element: <CompanyDetails />,
+  },
+  {
+    path: '/resumes',
+    element: <Resumes />,
+  },
+  {
+    path: '/settings',
+    element: <Settings />,
+  },
+];
+
+export const appRoutesNotProtected = [
   {
     path: '/',
     element: <LandingPage />,
@@ -96,34 +101,3 @@ const appRoutesNotProtected = [
     element: <AuthWrapper />,
   },
 ];
-
-const AppRoutesProtected = () => {
-  return (
-    <Routes>
-      {Children.toArray(
-        appRoutesProtected.map((route) => {
-          return <Route path={route.path} element={route.element} />;
-        })
-      )}
-
-      {/* Catch-all redirect */}
-      <Route path="*" element={<Navigate to="/home" replace />} />
-    </Routes>
-  );
-};
-
-const AppRoutesNotProtected = () => {
-  return (
-    <Routes>
-      {Children.toArray(
-        appRoutesNotProtected.map((route) => {
-          return <Route path={route.path} element={route.element} />;
-        })
-      )}
-      {/* Catch-all redirect */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
-  );
-};
-
-export { AppRoutesProtected, AppRoutesNotProtected };

@@ -3,10 +3,9 @@ import { useColorModeValue } from '@/components/ui/color-mode';
 import { Box } from '@chakra-ui/react';
 import SideBar from '@/components/side-bar/SideBar';
 
-import { AppRoutesProtected } from '@/routes/AppRoutes';
 import NavBar from '../components/nav-bar/NavBar';
 
-const HorizontalLayout = () => {
+const HorizontalLayout = ({ children }: any) => {
   return (
     <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>
       {/* SideBar */}
@@ -22,7 +21,7 @@ const HorizontalLayout = () => {
         // border="1px solid black"
         // height="calc(100vh - 70px)"
       >
-        <AppRoutesProtected />
+        {children}
       </Box>
     </Box>
   );
