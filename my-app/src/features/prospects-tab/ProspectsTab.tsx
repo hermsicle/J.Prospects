@@ -24,6 +24,8 @@ import {
   FiCalendar,
 } from 'react-icons/fi';
 import ProspectsPieChart from '../prospects-pie-chart/ProspectsPieChart';
+import { useState } from 'react';
+import DeleteModal from '@/components/modal/DeleteModal';
 
 const ProspectsTab = () => {
   const { open, onOpen, setOpen } = useDisclosure();
@@ -73,7 +75,7 @@ const ProspectsTable = () => {
   const columns = [
     {
       accessorKey: 'positionOfInterest',
-      header: 'Role',
+      header: 'Role Applying For',
     },
     {
       accessorKey: 'personOfContact',
@@ -126,6 +128,8 @@ const ProspectsTable = () => {
     {
       accessorKey: 'actions',
       header: 'Actions',
+    enableSorting: false,
+
     },
   ];
 
@@ -188,8 +192,53 @@ const ProspectsTable = () => {
       actions: '',
     },
   ];
+  const [selectedProspect, setSelectedProspect] = useState<any>(null);
+  const { open, onOpen, setOpen } = useDisclosure();
 
-  return <AppTable columns={columns} rawData={data} />;
+  const {
+    open: deleteOpen,
+    onOpen: onDeleteOpen,
+    setOpen: setDeleteOpen,
+  } = useDisclosure();
+
+  const toggleDelete = (prospect: any) => {
+    console.log('Delete prospect', prospect);
+    setSelectedProspect(prospect);
+    setDeleteOpen(true);
+  };
+
+  const toggleEdit = (company: any) => {
+    console.log('Edit company', company);
+    setSelectedProspect(company);
+    setOpen(true);
+  };
+
+  return (
+    <>
+      <AppTable
+        columns={columns}
+        rawData={data}
+        handleDelete={toggleDelete}
+        handleEdit={toggleEdit}
+      />
+      {deleteOpen && (
+        <DeleteModal
+          open={deleteOpen}
+          setOpen={setDeleteOpen}
+          title={`Delete ${selectedProspect?.personOfContact}`}
+          handleDelete={() => {}}
+        />
+      )}
+      {open && (
+        <AddProspectModal
+          open={open}
+          setOpen={setOpen}
+          selectedProspect={selectedProspect}
+          setSelectedProspect={setSelectedProspect}
+        />
+      )}
+    </>
+  );
 };
 
 export default ProspectsTab;

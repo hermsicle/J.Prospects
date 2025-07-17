@@ -18,10 +18,16 @@ import {
   Box,
   Text,
 } from '@chakra-ui/react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import SimpleBar from 'simplebar-react';
 
-const AddCompanyModal = ({ open, setOpen }: any) => {
+const AddCompanyModal = ({
+  open,
+  setOpen,
+  selectedCompany = null,
+  setSelectedCompany = null,
+}: any) => {
+  const isEdit = selectedCompany !== null;
   const [formData, setFormData] = useState({
     name: '',
     // website: '',
@@ -82,6 +88,12 @@ const AddCompanyModal = ({ open, setOpen }: any) => {
     setGeneratedNoteMessage(OUTREACH_NOTE_EXAMPLE);
   };
 
+  useEffect(() => {
+    return () => {
+      setSelectedCompany(null);
+    };
+  }, []);
+
   return (
     <Dialog.Root
       initialFocusEl={() => ref.current}
@@ -97,7 +109,9 @@ const AddCompanyModal = ({ open, setOpen }: any) => {
         <Dialog.Positioner>
           <Dialog.Content>
             <Dialog.Header>
-              <Dialog.Title>{'Add company'}</Dialog.Title>
+              <Dialog.Title>
+                {isEdit ? 'Edit company' : 'Add company'}
+              </Dialog.Title>
             </Dialog.Header>
             <Dialog.Body pb="4">
               <Flex gap={2}>

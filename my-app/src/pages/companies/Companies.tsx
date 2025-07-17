@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { AppTable } from '@/components/table/AppTable';
 import AddCompanyModal from '@/features/add-company-modal/AddCompanyModal';
+import DeleteModal from '@/components/modal/DeleteModal';
 /*
 Company Features:
 Table to list all companies
@@ -50,6 +51,7 @@ const columns = [
   {
     accessorKey: 'actions',
     header: 'Actions',
+    enableSorting: false,
   },
 ];
 
@@ -80,6 +82,26 @@ const data = [
 
 const Companies = () => {
   const { open, onOpen, setOpen } = useDisclosure();
+  const {
+    open: deleteOpen,
+    onOpen: onDeleteOpen,
+    setOpen: setDeleteOpen,
+  } = useDisclosure();
+
+  const [selectedCompany, setSelectedCompany] = useState<any>(null);
+
+  const toggleDelete = (company: any) => {
+    console.log('Delete company', company);
+    setSelectedCompany(company);
+    setDeleteOpen(true);
+  };
+
+  const toggleEdit = (company: any) => {
+    console.log('Edit company', company);
+    setSelectedCompany(company);
+    setOpen(true);
+  };
+
   return (
     <Box>
       <Flex alignItems="center" justifyContent={'space-between'} mb={3}>
@@ -90,11 +112,31 @@ const Companies = () => {
       </Flex>
       <Card.Root>
         <Card.Body>
-          <AppTable columns={columns} rawData={data} />
+          <AppTable
+            columns={columns}
+            rawData={data}
+            handleDelete={toggleDelete}
+            handleEdit={toggleEdit}
+          />
         </Card.Body>
       </Card.Root>
 
-      {open && <AddCompanyModal open={open} setOpen={setOpen} />}
+      {open && (
+        <AddCompanyModal
+          open={open}
+          setOpen={setOpen}
+          selectedCompany={selectedCompany}
+          setSelectedCompany={setSelectedCompany}
+        />
+      )}
+      {deleteOpen && (
+        <DeleteModal
+          open={deleteOpen}
+          setOpen={setDeleteOpen}
+          title={`Delete ${selectedCompany?.companyName}`}
+          handleDelete={() => {}}
+        />
+      )}
     </Box>
   );
 };

@@ -2,18 +2,36 @@ import {
   useReactTable,
   getCoreRowModel,
   flexRender,
+  getSortedRowModel,
 } from '@tanstack/react-table';
-import { Box, InputGroup, Input, Table, IconButton } from '@chakra-ui/react';
+import {
+  Box,
+  InputGroup,
+  Input,
+  Table,
+  IconButton,
+  Flex,
+  Badge,
+  Icon,
+} from '@chakra-ui/react';
 
 import { CiSearch } from 'react-icons/ci';
-import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa';
+import { FaRegEdit, FaRegTrashAlt, FaSort } from 'react-icons/fa';
 
 import { useMemo, useState } from 'react';
 import { useColorModeValue } from '../ui/color-mode';
 import { Link } from 'react-router-dom';
+import { FiRefreshCcw } from 'react-icons/fi';
 
-export function AppTable({ columns, rawData = [] }: any) {
+export function AppTable({
+  columns,
+  rawData = [],
+  handleDelete = null,
+  handleEdit = null,
+  deleteActionOnly = false,
+}: any) {
   const [search, setSearch] = useState('');
+  const [sorting, setSorting] = useState<any>([]);
 
   // Filter data based on search query (case insensitive)
   const data = useMemo(() => {
@@ -29,29 +47,43 @@ export function AppTable({ columns, rawData = [] }: any) {
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(), //client-side sorting
+    onSortingChange: setSorting,
+    initialState: {
+      sorting,
+    },
+    state: {
+      sorting,
+    },
   });
 
   return (
     <Box>
-      {/* Search bar */}
-      <InputGroup
-        mb={4}
-        maxW="400px"
-        mx="auto"
-        startElement={<CiSearch color="gray.400" />}
-      >
-        <Input
-          placeholder="Search..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          aria-label="Search table"
-          bg="gray.50"
-          _dark={{ bg: 'gray.700' }}
-          rounded="md"
-          // boxShadow="sm"
-          _focus={{ boxShadow: 'outline' }}
-        />
-      </InputGroup>
+      <Flex alignItems="center" justifyContent={'space-between'} mb={4}>
+        {/* Search bar */}
+        <InputGroup
+          maxW="400px"
+          mx=""
+          startElement={<CiSearch color="gray.400" />}
+        >
+          <Input
+            placeholder="Search..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            aria-label="Search table"
+            bg="gray.50"
+            _dark={{ bg: 'gray.700' }}
+            rounded="md"
+            _focus={{ boxShadow: 'outline' }}
+          />
+        </InputGroup>
+
+        {/* Refresh data */}
+        <IconButton size="sm" variant={'subtle'}>
+          <FiRefreshCcw />
+        </IconButton>
+      </Flex>
+
       <Table.ScrollArea
         borderWidth="1px"
         rounded="md"
@@ -63,11 +95,28 @@ export function AppTable({ columns, rawData = [] }: any) {
             {table.getHeaderGroups().map((headerGroup) => (
               <Table.Row key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <Table.Cell key={header.id}>
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
+                  <Table.Cell key={header.id} fontWeight={'500'}>
+                    <Box
+                      style={{
+                        cursor: header.column.getCanSort()
+                          ? 'pointer'
+                          : 'default',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.25rem',
+                      }}
+                      onClick={header.column.getToggleSortingHandler()}
+                    >
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                      {header.column.getCanSort() && (
+                        <Icon color="blue.500">
+                          <FaSort />
+                        </Icon>
+                      )}
+                    </Box>
                   </Table.Cell>
                 ))}
               </Table.Row>
@@ -79,12 +128,34 @@ export function AppTable({ columns, rawData = [] }: any) {
                 {row.getVisibleCells().map((cell) => {
                   // if cell col id is actions
                   if (cell.column.id === 'actions') {
+                    if (deleteActionOnly) {
+                      return (
+                        <Table.Cell key={cell.id}>
+                          <IconButton
+                            variant={'ghost'}
+                            size="sm"
+                            onClick={() => handleDelete(row.original)}
+                          >
+                            <FaRegTrashAlt color="red" />
+                          </IconButton>
+                        </Table.Cell>
+                      );
+                    }
+
                     return (
                       <Table.Cell key={cell.id}>
-                        <IconButton variant={'ghost'} size="sm">
+                        <IconButton
+                          variant={'ghost'}
+                          size="sm"
+                          onClick={() => handleEdit(row.original)}
+                        >
                           <FaRegEdit color="green" />
                         </IconButton>
-                        <IconButton variant={'ghost'} size="sm">
+                        <IconButton
+                          variant={'ghost'}
+                          size="sm"
+                          onClick={() => handleDelete(row.original)}
+                        >
                           <FaRegTrashAlt color="red" />
                         </IconButton>
                       </Table.Cell>
@@ -111,6 +182,43 @@ export function AppTable({ columns, rawData = [] }: any) {
                             )}
                           </Box>
                         </Link>
+                      </Table.Cell>
+                    );
+                  }
+
+                  // if cell col id is status
+                  if (cell.column.id === 'status') {
+                    interface RowData {
+                      status?: string;
+                      // Add other properties that row.original may have
+                    }
+
+                    const status =
+                      (row.original as RowData)?.status || 'Unknown';
+                    const statusColor =
+                      status.toLowerCase() === 'applied'
+                        ? 'blue.500'
+                        : status.toLowerCase() === 'interviewing'
+                        ? 'orange.500'
+                        : status.toLowerCase() === 'offer'
+                        ? 'green.500'
+                        : status.toLowerCase() === 'rejected'
+                        ? 'red.500'
+                        : 'gray.500';
+
+                    return (
+                      <Table.Cell key={cell.id}>
+                        <Badge
+                          as="span"
+                          color={statusColor}
+                          fontWeight="600"
+                          textTransform="capitalize"
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </Badge>
                       </Table.Cell>
                     );
                   }

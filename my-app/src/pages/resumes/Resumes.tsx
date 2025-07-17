@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { AppTable } from '@/components/table/AppTable';
 import UploadResumeModal from '@/features/upload-resume-modal/UploadResumeModal';
+import DeleteModal from '@/components/modal/DeleteModal';
 
 const columns = [
   {
@@ -27,6 +28,7 @@ const columns = [
   {
     accessorKey: 'actions',
     header: 'Actions',
+    enableSorting: false,
   },
 ];
 
@@ -53,6 +55,19 @@ const data = [
 
 const Resumes = () => {
   const { open, onOpen, setOpen } = useDisclosure();
+  const {
+    open: deleteOpen,
+    onOpen: onDeleteOpen,
+    setOpen: setDeleteOpen,
+  } = useDisclosure();
+  const [selectedResume, setSelectedResume] = useState<any>(null);
+
+  const toggleDelete = (resume: any) => {
+    console.log('Delete resume', resume);
+    setSelectedResume(resume);
+    setDeleteOpen(true);
+  };
+
   return (
     <Box>
       <Flex alignItems="center" justifyContent={'space-between'} mb={3}>
@@ -63,11 +78,24 @@ const Resumes = () => {
       </Flex>
       <Card.Root>
         <Card.Body>
-          <AppTable columns={columns} rawData={data} />
+          <AppTable
+            columns={columns}
+            rawData={data}
+            handleDelete={toggleDelete}
+            deleteActionOnly={true}
+          />
         </Card.Body>
       </Card.Root>
 
       {open && <UploadResumeModal open={open} setOpen={setOpen} />}
+      {deleteOpen && (
+        <DeleteModal
+          open={deleteOpen}
+          setOpen={setDeleteOpen}
+          title={`Delete ${selectedResume?.fileName}`}
+          handleDelete={() => {}}
+        />
+      )}
     </Box>
   );
 };

@@ -19,7 +19,14 @@ import { useRef, useState } from 'react';
 
 import { getOpenAIResponse } from '@/services/openai';
 
-const AddProspectModal = ({ open, setOpen }: any) => {
+const AddProspectModal = ({
+  open,
+  setOpen,
+  selectedProspect = null,
+  setSelectedProspect = null,
+}: any) => {
+  const isEdit = selectedProspect !== null;
+
   const [formData, setFormData] = useState({
     positionOfInterest: '',
     personOfContact: '',
@@ -75,7 +82,9 @@ const AddProspectModal = ({ open, setOpen }: any) => {
         <Dialog.Positioner>
           <Dialog.Content>
             <Dialog.Header>
-              <Dialog.Title>{'Add prospect'}</Dialog.Title>
+              <Dialog.Title>
+                {isEdit ? 'Edit prospect' : 'Add prospect'}
+              </Dialog.Title>
             </Dialog.Header>
             <Dialog.Body pb="4">
               <Stack gap="4">

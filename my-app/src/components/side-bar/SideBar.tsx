@@ -23,7 +23,7 @@ import {
   FiMenu,
   FiFile,
 } from 'react-icons/fi';
-import { PiSignOut } from 'react-icons/pi';
+import { PiGearFine, PiSignOut, PiToolbox } from 'react-icons/pi';
 
 import type { IconType } from 'react-icons';
 import { BsBuildings } from 'react-icons/bs';
@@ -39,6 +39,7 @@ import { Link, useLocation, useParams } from 'react-router-dom';
 
 import { Amplify } from 'aws-amplify';
 import { signOut } from 'aws-amplify/auth';
+import NavBar from '../nav-bar/NavBar';
 
 interface LinkItemProps {
   name: string;
@@ -49,7 +50,7 @@ const LinkItems: Array<LinkItemProps> = [
   { name: 'Home', path: '/home', icon: FiHome },
   { name: 'Companies', path: '/companies', icon: BsBuildings },
   { name: 'Resumes', path: '/resumes', icon: FiFile },
-  { name: 'Settings', path: '/settings', icon: FiCompass },
+  // { name: 'Settings', path: '/settings', icon: FiCompass },
 ];
 
 const SideBar = () => {
@@ -130,10 +131,15 @@ const SidebarContent = ({ onClose, open, ...rest }: any) => {
           ))}
         </Box>
 
-        <Box onClick={handleSignOut}>
-          <NavItem icon={PiSignOut} path={'/auth'}>
-            Sign Out
+        <Box>
+          <NavItem icon={PiGearFine} path={'/settings'}>
+            Profile Settings
           </NavItem>
+          <Box onClick={handleSignOut}>
+            <NavItem icon={PiSignOut} path={'/auth'}>
+              Sign Out
+            </NavItem>
+          </Box>
         </Box>
       </Box>
     </Box>
@@ -202,16 +208,20 @@ const MobileNav = ({ onOpen, ...rest }: any) => {
       bg={useColorModeValue('white', 'gray.900')}
       borderBottomWidth="1px"
       borderBottomColor={useColorModeValue('gray.200', 'gray.700')}
-      justifyContent="flex-start"
+      justifyContent="space-between"
       {...rest}
     >
-      <IconButton variant="outline" onClick={onOpen} aria-label="open menu">
-        <FiMenu />
-      </IconButton>
+      <Flex alignItems="center">
+        <IconButton variant="outline" onClick={onOpen} aria-label="open menu">
+          <FiMenu />
+        </IconButton>
 
-      <Text fontSize="2xl" ml="8" fontFamily="monospace" fontWeight="bold">
-        J. Prospects
-      </Text>
+        <Text fontSize="2xl" ml="8" fontFamily="monospace" fontWeight="bold">
+          J. Prospects
+        </Text>
+      </Flex>
+
+      <NavBar mobile={true} />
     </Flex>
   );
 };

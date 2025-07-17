@@ -5,7 +5,7 @@ const Settings = () => {
   return (
     <Box>
       <Flex alignItems="center" justifyContent={'space-between'}>
-        <Heading>Settings</Heading>
+        <Heading>Profile Settings</Heading>
       </Flex>
     </Box>
   );

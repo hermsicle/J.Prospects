@@ -22,7 +22,7 @@ const CompanyDetails = () => {
     },
     {
       value: 'files',
-      header: 'Files',
+      header: 'Company Information',
       icon: <LuFolder />,
     },
   ];
