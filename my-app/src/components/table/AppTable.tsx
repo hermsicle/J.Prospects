@@ -96,7 +96,7 @@ export function AppTable({ columns, rawData = [] }: any) {
                     return (
                       <Table.Cell key={cell.id} whiteSpace="nowrap">
                         <Link
-                          to={`/company/${cell.renderValue()}`}
+                          to={`/companies/company/${cell.renderValue()}`}
                           style={{ textDecoration: 'none' }}
                         >
                           <Box

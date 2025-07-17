@@ -1,6 +1,4 @@
-'use client';
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   IconButton,
   Box,
@@ -14,6 +12,7 @@ import {
   useDisclosure,
   Button,
   Portal,
+  useMediaQuery,
 } from '@chakra-ui/react';
 import {
   FiHome,
@@ -36,7 +35,7 @@ import {
   useColorMode,
   useColorModeValue,
 } from '@/components/ui/color-mode';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 
 import { Amplify } from 'aws-amplify';
 import { signOut } from 'aws-amplify/auth';
@@ -55,6 +54,13 @@ const LinkItems: Array<LinkItemProps> = [
 
 const SideBar = () => {
   const { open, onOpen, onClose } = useDisclosure();
+  const [isLargerThan768] = useMediaQuery(['(min-width: 768px)']);
+
+  useEffect(() => {
+    if (isLargerThan768 && open) {
+      onClose();
+    }
+  }, [isLargerThan768]);
 
   return (
     <>
@@ -62,20 +68,28 @@ const SideBar = () => {
       <SidebarContent
         onClose={() => onClose}
         display={{ base: 'none', md: 'block' }}
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          height: '100vh',
-          width: '280px', // customize width
-          boxShadow: 'lg',
-          // background: colorMode === 'light' ? 'white' : 'blue.900', // or use chakra tokens if using ChakraTheme
-          zIndex: 1000,
-        }}
       />
 
       {/* mobilenav */}
       <MobileNav display={{ base: 'flex', md: 'none' }} onOpen={onOpen} />
+
+      {/* Sidebar mobilenav open */}
+
+      <Drawer.Root open={open} onOpenChange={onClose} placement="start">
+        <Portal>
+          <Drawer.Backdrop />
+          <Drawer.Positioner>
+            <Drawer.Content>
+              <Drawer.Body p="0">
+                <SidebarContent
+                  onClose={onClose}
+                  display={{ base: 'block', md: 'none' }}
+                />
+              </Drawer.Body>
+            </Drawer.Content>
+          </Drawer.Positioner>
+        </Portal>
+      </Drawer.Root>
     </>
   );
 };
@@ -84,19 +98,17 @@ const handleSignOut = async () => {
   await signOut();
 };
 
-const SidebarContent = ({ onClose, ...rest }: any) => {
+const SidebarContent = ({ onClose, open, ...rest }: any) => {
   return (
     <Box
-      bg={useColorModeValue('white', 'gray.900')}
-      borderRight="1px"
-      borderRightColor={useColorModeValue('gray.300', 'gray.700')}
-      w={{ base: 'full', md: 60 }}
+      bg={useColorModeValue('white', 'gray.800')}
+      w={{ base: 350, md: 250 }}
       pos="fixed"
       h="full"
-      shadow="sm"
+      // shadow="sm"
       {...rest}
     >
-      <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
+      <Flex h="20" alignItems="center" mx="6" justifyContent="space-between">
         <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
           J.Prospects
           {/* Short for Job Prospects */}
@@ -119,7 +131,7 @@ const SidebarContent = ({ onClose, ...rest }: any) => {
         </Box>
 
         <Box onClick={handleSignOut}>
-          <NavItem icon={PiSignOut} path={'/'}>
+          <NavItem icon={PiSignOut} path={'/auth'}>
             Sign Out
           </NavItem>
         </Box>
@@ -134,23 +146,34 @@ interface NavItemProps {
   children: any;
 }
 const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
+  const location = useLocation();
+
   return (
-    <Link
-      to={path}
-      style={{ textDecoration: 'none' }}
-      // _focus={{ boxShadow: 'none' }}
-    >
+    <Link to={path} style={{ textDecoration: 'none' }}>
       <Flex
         align="center"
-        p="4"
-        mx="4"
+        px="4"
+        py="2"
+        mx="2"
+        my="1"
         borderRadius="lg"
         role="group"
         cursor="pointer"
         _hover={{
-          bg: 'blue.400',
-          color: 'white',
+          color: useColorModeValue('blue.500', 'gray.800'),
+          background: useColorModeValue('blue.100', 'gray.800'),
         }}
+        fontWeight={'500'}
+        color={
+          location.pathname.startsWith(path)
+            ? useColorModeValue('blue.500', 'gray.800')
+            : ''
+        }
+        backgroundColor={
+          location.pathname.startsWith(path)
+            ? useColorModeValue('blue.100', 'gray.800')
+            : ''
+        }
         {...rest}
       >
         {icon && (
@@ -169,9 +192,6 @@ const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
   );
 };
 
-interface MobileProps {
-  onOpen: () => void;
-}
 const MobileNav = ({ onOpen, ...rest }: any) => {
   return (
     <Flex
@@ -185,15 +205,12 @@ const MobileNav = ({ onOpen, ...rest }: any) => {
       justifyContent="flex-start"
       {...rest}
     >
-      <IconButton
-        variant="outline"
-        onClick={onOpen}
-        aria-label="open menu"
-        // icon={<FiMenu />}
-      />
+      <IconButton variant="outline" onClick={onOpen} aria-label="open menu">
+        <FiMenu />
+      </IconButton>
 
       <Text fontSize="2xl" ml="8" fontFamily="monospace" fontWeight="bold">
-        Logo
+        J. Prospects
       </Text>
     </Flex>
   );

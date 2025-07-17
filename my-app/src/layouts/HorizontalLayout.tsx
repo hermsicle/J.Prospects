@@ -12,11 +12,11 @@ const HorizontalLayout = ({ children }: any) => {
       <SideBar />
 
       {/* Main  Content Routes */}
-      <Box ml={{ base: 0, md: 280 }}>
+      <Box ml={{ base: 0, md: 250 }}>
         <NavBar />
       </Box>
       <Box
-        ml={{ base: 0, md: 280 }}
+        ml={{ base: 0, md: 250 }}
         p="4"
         // border="1px solid black"
         // height="calc(100vh - 70px)"

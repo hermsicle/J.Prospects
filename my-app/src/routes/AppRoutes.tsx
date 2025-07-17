@@ -78,7 +78,7 @@ export const appRoutesProtected = [
     element: <Companies />,
   },
   {
-    path: '/company/:id',
+    path: '/companies/company/:id',
     element: <CompanyDetails />,
   },
   {
