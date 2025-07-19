@@ -226,6 +226,27 @@ export function AppTable({
                     );
                   }
 
+                  if (
+                    cell.column.id === 'createdAt' ||
+                    cell.column.id === 'updatedAt'
+                  ) {
+                    return (
+                      <Table.Cell key={cell.id}>
+                        {new Date(cell.getValue() as string).toLocaleString(
+                          'en-US',
+                          {
+                            month: '2-digit',
+                            day: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true, // Use 12-hour format
+                          }
+                        )}
+                      </Table.Cell>
+                    );
+                  }
+
                   return (
                     <Table.Cell key={cell.id}>
                       {flexRender(

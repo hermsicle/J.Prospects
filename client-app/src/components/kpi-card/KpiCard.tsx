@@ -25,7 +25,12 @@ const KpiCard = ({ header, data, icon }: KpiCardProps) => {
         <Text fontSize="md" color="gray.500" fontWeight="medium">
           {header}
         </Text>
-        <Icon as={icon.type} boxSize={6} color="blue.400" />
+        <Icon
+          as={icon.type}
+          boxSize={6}
+          color="blue.400"
+          display={{ base: 'none', md: 'block' }}
+        />
       </Flex>
       <Text fontSize="2xl" fontWeight="bold">
         {data}

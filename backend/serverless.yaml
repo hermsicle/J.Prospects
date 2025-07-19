@@ -16,59 +16,22 @@ provider:
         - dynamodb:Scan
         - dynamodb:UpdateItem
       Resource:
-        - arn:aws:dynamodb:us-west-2:*:table/MyTable
+        - arn:aws:dynamodb:us-west-2:*:table/j.prospects
     - Effect: Allow
       Action:
         - bedrock:InvokeModel
       Resource: '*'
 
+  apiGateway:
+    restApiId: # optional
+    restApiRootResourceId: # optional
+    authorizers:
+      cognitoAuthorizer:
+        type: COGNITO_USER_POOLS
+        authorizerId:
+          Ref: ApiGatewayAuthorizer
+
 functions:
-  createItem:
-    handler: handlers/dynamodb-handler.createItem
-    events:
-      - http:
-          path: items
-          method: post
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
-
-  getItem:
-    handler: handlers/dynamodb-handler.getItem
-    events:
-      - http:
-          path: items/{id}
-          method: get
-          cors: true
-
-  updateItem:
-    handler: handlers/dynamodb-handler.updateItem
-    events:
-      - http:
-          path: items/{id}
-          method: put
-          cors: true
-
-  deleteItem:
-    handler: handlers/dynamodb-handler.deleteItem
-    events:
-      - http:
-          path: items/{id}
-          method: delete
-          cors: true
-
-  listItems:
-    handler: handlers/dynamodb-handler.listItems
-    events:
-      - http:
-          path: items
-          method: get
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
-
   callClaude:
     handler: handlers/bedrock-handler.callClaude
     events:
@@ -76,7 +39,7 @@ functions:
           path: bedrock
           method: post
 
-    # Companies APIs
+  # Companies APIs
   listCompanies:
     handler: handlers/dynamodb-handler.listCompanies
     events:
@@ -86,7 +49,8 @@ functions:
           cors: true
           authorizer:
             type: COGNITO_USER_POOLS
-            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
 
   createCompany:
     handler: handlers/dynamodb-handler.createCompany
@@ -97,7 +61,8 @@ functions:
           cors: true
           authorizer:
             type: COGNITO_USER_POOLS
-            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
 
   getCompany:
     handler: handlers/dynamodb-handler.getCompany
@@ -108,7 +73,8 @@ functions:
           cors: true
           authorizer:
             type: COGNITO_USER_POOLS
-            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
 
   updateCompany:
     handler: handlers/dynamodb-handler.updateCompany
@@ -119,7 +85,8 @@ functions:
           cors: true
           authorizer:
             type: COGNITO_USER_POOLS
-            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
 
   deleteCompany:
     handler: handlers/dynamodb-handler.deleteCompany
@@ -130,7 +97,20 @@ functions:
           cors: true
           authorizer:
             type: COGNITO_USER_POOLS
-            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  getCompanyKpis:
+    handler: handlers/dynamodb-handler.getCompanyKpis
+    events:
+      - http:
+          path: companies/{companyId}/kpis
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
 
   # Prospects APIs
   listCompanyProspects:
@@ -142,7 +122,8 @@ functions:
           cors: true
           authorizer:
             type: COGNITO_USER_POOLS
-            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
 
   createCompanyProspect:
     handler: handlers/dynamodb-handler.createCompanyProspect
@@ -153,7 +134,8 @@ functions:
           cors: true
           authorizer:
             type: COGNITO_USER_POOLS
-            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
 
   getCompanyProspect:
     handler: handlers/dynamodb-handler.getCompanyProspect
@@ -164,7 +146,8 @@ functions:
           cors: true
           authorizer:
             type: COGNITO_USER_POOLS
-            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
 
   updateCompanyProspect:
     handler: handlers/dynamodb-handler.updateCompanyProspect
@@ -175,7 +158,8 @@ functions:
           cors: true
           authorizer:
             type: COGNITO_USER_POOLS
-            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
 
   deleteCompanyProspect:
     handler: handlers/dynamodb-handler.deleteCompanyProspect
@@ -186,7 +170,8 @@ functions:
           cors: true
           authorizer:
             type: COGNITO_USER_POOLS
-            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
 
 resources:
   Resources:
@@ -201,20 +186,30 @@ resources:
           - AttributeName: id
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
+    ApiGatewayAuthorizer:
+      Type: AWS::ApiGateway::Authorizer
+      Properties:
+        Name: CognitoAuthorizer
+        Type: COGNITO_USER_POOLS
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        IdentitySource: method.request.header.Authorization
+        ProviderARNs:
+          - arn:aws:cognito-idp:${env:AWS_REGION}:${env:AWS_ACCOUNT_ID}:userpool/${env:COGNITO_USER_POOL_ID}
 
-custom:
-  authorizer:
-    # dev:
-    #   name: yourAuthLambdaName
-    #   type: request
-    #   resultTtlInSeconds: 0
-    #   identitySource: method.request.header.Authorization
-    # prod:
-    #   name: yourAuthLambdaName
-    #   type: request
-    #   resultTtlInSeconds: 0
-    #   identitySource: method.request.header.Authorization
-    local: null
+# custom:
+# authorizer:
+# dev:
+#   name: yourAuthLambdaName
+#   type: request
+#   resultTtlInSeconds: 0
+#   identitySource: method.request.header.Authorization
+# prod:
+#   name: yourAuthLambdaName
+#   type: request
+#   resultTtlInSeconds: 0
+#   identitySource: method.request.header.Authorization
+# local: null
 
 plugins:
   - serverless-offline

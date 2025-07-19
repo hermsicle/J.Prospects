@@ -65,6 +65,22 @@ export const deleteCompany = async (id: string) => {
   return response.data;
 };
 
+export const fetchCompanyKpis = async (companyId: string) => {
+  const idToken = await authToken();
+
+  const response = await axios.get(
+    `${API_BASE_URL}/companies/${companyId}/kpis`,
+    {
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+
+  return response.data;
+};
+
 //! Prospects API
 export const listCompanyProspects = async (companyId: string) => {
   const idToken = await authToken();

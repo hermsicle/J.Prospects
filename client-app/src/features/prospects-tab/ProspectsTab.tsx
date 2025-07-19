@@ -22,34 +22,79 @@ import {
   FiBriefcase,
   FiXCircle,
   FiCalendar,
+  FiPlusCircle,
+  FiList,
+  FiRefreshCw,
 } from 'react-icons/fi';
+import { MdWorkOutline } from 'react-icons/md';
+
 import ProspectsPieChart from '../prospects-pie-chart/ProspectsPieChart';
 import { useState } from 'react';
 import DeleteModal from '@/components/modal/DeleteModal';
 import { useLocation } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { deleteProspect, listCompanyProspects } from '@/services/apis';
+import {
+  deleteProspect,
+  fetchCompanyKpis,
+  listCompanyProspects,
+} from '@/services/apis';
 
 const ProspectsTab = () => {
   const { open, onOpen, setOpen } = useDisclosure();
   const location = useLocation();
   const companyId = location.search.split('=')[1];
 
+  const { isFetching, error, data, refetch } = useQuery({
+    queryKey: ['kpis'],
+    queryFn: () => fetchCompanyKpis(companyId),
+  });
+
+  console.log('data', data);
+
   return (
     <Box>
-      {/* Kpis */}
-      <Grid templateColumns="repeat(4, 1fr)" gap={3} mb={3}>
+      <Grid
+        templateColumns={{
+          base: 'repeat(1, 1fr)', // mobile
+          sm: 'repeat(2, 1fr)', // tablet
+          md: 'repeat(3, 1fr)', // desktop
+        }}
+        gap={4}
+        mb={6}
+      >
         <GridItem>
           <KpiCard header="Total Prospects" data="25" icon={<FiUsers />} />
         </GridItem>
         <GridItem>
-          <KpiCard header="New This Week" data="5" icon={<FiCalendar />} />
+          <KpiCard
+            header="New Prospects This Week"
+            data="5"
+            icon={<FiPlusCircle />}
+          />
         </GridItem>
         <GridItem>
-          <KpiCard header="In Progress" data="5" icon={<FiActivity />} />
+          <KpiCard header="Prospects by Status" data="5" icon={<FiList />} />
         </GridItem>
         <GridItem>
-          <KpiCard header="Rejected" data="5" icon={<FiXCircle />} />
+          <KpiCard
+            header="Recently Updated Prospects"
+            data="5"
+            icon={<FiRefreshCw />}
+          />
+        </GridItem>
+        <GridItem>
+          <KpiCard
+            header="Interviews Scheduled This Week"
+            data="5"
+            icon={<FiCalendar />}
+          />
+        </GridItem>
+        <GridItem>
+          <KpiCard
+            header="Offers Received This Month"
+            data="5"
+            icon={<MdWorkOutline />}
+          />
         </GridItem>
       </Grid>
 

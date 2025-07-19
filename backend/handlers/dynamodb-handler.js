@@ -478,4 +478,57 @@ module.exports.deleteCompanyProspect = async (event) => {
 
 module.exports.getCompanyKpis = async (event) => {
   // get total prospects count, new this week, how many are in progress, and rejected
+
+  const { companyId } = event.pathParameters;
+  const userId = `USER#${event.requestContext.authorizer.claims.sub}`;
+
+  try {
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        KeyConditionExpression:
+          'PK = :companyPK AND begins_with(SK, :prospectId)',
+        ExpressionAttributeValues: {
+          ':companyPK': `COMPANY#${companyId}`,
+          ':prospectId': 'PROSPECT#',
+        },
+      })
+    );
+
+    const totalProspects = result.Items.length;
+
+    /*
+      {   value: 'inProgress' },
+      {   value: 'applied' },
+      {   value: 'interviewing' },
+      {   value: 'offer' },
+      {   value: 'rejected' },
+    */
+
+    const inprogressStatusArr = [
+      'inProgress',
+      'applied',
+      'interviewing',
+      'offer',
+    ];
+    const inProgressCount = result.Items.filter((item) =>
+      inprogressStatusArr.includes(item.status)
+    ).length;
+
+    const rejectedCount = result.Items.filter(
+      (item) => item.status === 'rejected'
+    ).length;
+
+    const responsePayload = {
+      totalProspects,
+      inProgressCount,
+      rejectedCount,
+      // Add more KPIs calculations here as needed
+    };
+
+    return buildResponse(200, responsePayload);
+  } catch (err) {
+    console.error('getCompanyKpis error:', err);
+    return buildResponse(500, { message: 'Failed to list prospects' });
+  }
 };

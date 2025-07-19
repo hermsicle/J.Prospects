@@ -58,6 +58,7 @@ const AddProspectModal = ({
     mutationFn: createProspect,
     onSuccess: (data) => {
       setOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['prospects'] });
     },
   });
 
