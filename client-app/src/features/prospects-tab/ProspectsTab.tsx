@@ -26,9 +26,14 @@ import {
 import ProspectsPieChart from '../prospects-pie-chart/ProspectsPieChart';
 import { useState } from 'react';
 import DeleteModal from '@/components/modal/DeleteModal';
+import { useLocation } from 'react-router-dom';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { deleteProspect, listCompanyProspects } from '@/services/apis';
 
 const ProspectsTab = () => {
   const { open, onOpen, setOpen } = useDisclosure();
+  const location = useLocation();
+  const companyId = location.search.split('=')[1];
 
   return (
     <Box>
@@ -62,7 +67,7 @@ const ProspectsTab = () => {
           </Flex>
         </Card.Header>
         <Card.Body>
-          <ProspectsTable />
+          <ProspectsTable companyId={companyId} />
         </Card.Body>
       </Card.Root>
 
@@ -71,7 +76,7 @@ const ProspectsTab = () => {
   );
 };
 
-const ProspectsTable = () => {
+const ProspectsTable = ({ companyId }: any) => {
   const columns = [
     {
       accessorKey: 'positionOfInterest',
@@ -122,84 +127,96 @@ const ProspectsTable = () => {
       header: 'Status',
     },
     {
-      accessorKey: 'lastUpdated',
+      accessorKey: 'updatedAt',
       header: 'Last Updated',
     },
     {
       accessorKey: 'actions',
       header: 'Actions',
-    enableSorting: false,
-
+      enableSorting: false,
     },
   ];
 
-  const data = [
-    {
-      personOfContact: 'Jane Doe',
-      url: {
-        linkedin: 'https://linkedin.com/in/janedoe',
-        email: 'jane.doe@example.com',
-        jobListing: 'indeed.com',
-      },
-      status: 'Interviewing',
-      lastUpdated: '',
-      positionOfInterest: 'Frontend Engineer',
-      actions: '', // placeholder for action buttons like edit/delete
-    },
-    {
-      personOfContact: 'Michael Lee',
-      url: {
-        linkedin: 'https://linkedin.com/in/michaellee',
-        email: 'michael.lee@example.com',
-        jobListing: 'linkedIn.com',
-      },
-      status: 'Applied',
-      lastUpdated: '',
-      positionOfInterest: 'Backend Developer',
-      actions: '',
-    },
-    {
-      personOfContact: 'Emily Chen',
-      url: {
-        linkedin: 'https://linkedin.com/in/emchen',
-        email: 'emily.chen@example.com',
-      },
-      status: 'Rejected',
-      lastUpdated: '',
-      positionOfInterest: 'Product Designer',
-      actions: '',
-    },
-    {
-      personOfContact: 'Ryan Smith',
-      url: {
-        linkedin: 'https://linkedin.com/in/ryansmith',
-        email: 'ryan.smith@example.com',
-      },
-      status: 'Offer',
-      lastUpdated: '',
-      positionOfInterest: 'Full Stack Engineer',
-      actions: '',
-    },
-    {
-      personOfContact: 'Sarah Kim',
-      url: {
-        linkedin: 'https://linkedin.com/in/sarahkim',
-        email: 'sarah.kim@example.com',
-      },
-      status: 'Follow Up',
-      lastUpdated: '',
-      positionOfInterest: 'Software Engineer Intern',
-      actions: '',
-    },
-  ];
+  // const data = [
+  //   {
+  //     personOfContact: 'Jane Doe',
+  //     url: {
+  //       linkedin: 'https://linkedin.com/in/janedoe',
+  //       email: 'jane.doe@example.com',
+  //       jobListing: 'indeed.com',
+  //     },
+  //     status: 'Interviewing',
+  //     lastUpdated: '',
+  //     positionOfInterest: 'Frontend Engineer',
+  //     actions: '', // placeholder for action buttons like edit/delete
+  //   },
+  //   {
+  //     personOfContact: 'Michael Lee',
+  //     url: {
+  //       linkedin: 'https://linkedin.com/in/michaellee',
+  //       email: 'michael.lee@example.com',
+  //       jobListing: 'linkedIn.com',
+  //     },
+  //     status: 'Applied',
+  //     lastUpdated: '',
+  //     positionOfInterest: 'Backend Developer',
+  //     actions: '',
+  //   },
+  //   {
+  //     personOfContact: 'Emily Chen',
+  //     url: {
+  //       linkedin: 'https://linkedin.com/in/emchen',
+  //       email: 'emily.chen@example.com',
+  //     },
+  //     status: 'Rejected',
+  //     lastUpdated: '',
+  //     positionOfInterest: 'Product Designer',
+  //     actions: '',
+  //   },
+  //   {
+  //     personOfContact: 'Ryan Smith',
+  //     url: {
+  //       linkedin: 'https://linkedin.com/in/ryansmith',
+  //       email: 'ryan.smith@example.com',
+  //     },
+  //     status: 'Offer',
+  //     lastUpdated: '',
+  //     positionOfInterest: 'Full Stack Engineer',
+  //     actions: '',
+  //   },
+  //   {
+  //     personOfContact: 'Sarah Kim',
+  //     url: {
+  //       linkedin: 'https://linkedin.com/in/sarahkim',
+  //       email: 'sarah.kim@example.com',
+  //     },
+  //     status: 'Follow Up',
+  //     lastUpdated: '',
+  //     positionOfInterest: 'Software Engineer Intern',
+  //     actions: '',
+  //   },
+  // ];
   const [selectedProspect, setSelectedProspect] = useState<any>(null);
   const { open, onOpen, setOpen } = useDisclosure();
+
+  const { isFetching, error, data, refetch } = useQuery({
+    queryKey: ['prospects'],
+    queryFn: () => listCompanyProspects(companyId),
+  });
 
   const {
     open: deleteOpen,
     onOpen: onDeleteOpen,
     setOpen: setDeleteOpen,
   } = useDisclosure();
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteProspect,
+    onSuccess: () => {
+      refetch();
+      setDeleteOpen(false);
+    },
+  });
 
   const toggleDelete = (prospect: any) => {
     console.log('Delete prospect', prospect);
@@ -213,6 +230,16 @@ const ProspectsTable = () => {
     setOpen(true);
   };
 
+  const handleProspectDelete = () => {
+    deleteMutation.mutate({
+      companyId: companyId,
+      prospectId: selectedProspect.prospectId,
+    });
+  };
+
+  if (isFetching) return <div>Loading...</div>;
+  if (error) return <div>Error loading prospects</div>;
+
   return (
     <>
       <AppTable
@@ -220,13 +247,14 @@ const ProspectsTable = () => {
         rawData={data}
         handleDelete={toggleDelete}
         handleEdit={toggleEdit}
+        handleRefresh={refetch}
       />
       {deleteOpen && (
         <DeleteModal
           open={deleteOpen}
           setOpen={setDeleteOpen}
           title={`Delete ${selectedProspect?.personOfContact}`}
-          handleDelete={() => {}}
+          handleDelete={handleProspectDelete}
         />
       )}
       {open && (

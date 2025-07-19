@@ -14,10 +14,15 @@ import {
   Heading,
   Flex,
   Text,
+  Select,
+  createListCollection,
 } from '@chakra-ui/react';
 import { useRef, useState } from 'react';
 
 import { getOpenAIResponse } from '@/services/openai';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createProspect, updateProspect } from '@/services/apis';
+import { useLocation } from 'react-router-dom';
 
 const AddProspectModal = ({
   open,
@@ -26,29 +31,69 @@ const AddProspectModal = ({
   setSelectedProspect = null,
 }: any) => {
   const isEdit = selectedProspect !== null;
-
-  const [formData, setFormData] = useState({
-    positionOfInterest: '',
-    personOfContact: '',
-    url: {
-      linkedin: '',
-      email: '',
-      jobListing: '',
-    },
-    status: '', // Default to In Progress if new prospect
-    generatedOutreachMessage: '',
-    generatedNoteMessage: '',
-  });
+  const queryClient = useQueryClient();
+  const [formData, setFormData] = useState<any>(
+    isEdit
+      ? selectedProspect
+      : {
+          positionOfInterest: '',
+          personOfContact: '',
+          url: {
+            linkedin: '',
+            email: '',
+            jobListing: '',
+          },
+          status: 'inProgress', // Default to In Progress if new prospect
+          generatedOutreachMessage: '',
+          generatedNoteMessage: '',
+        }
+  );
   const ref = useRef<HTMLInputElement>(null);
+  const location = useLocation();
+  const companyId = location.search.split('=')[1];
+
+  // console.log('companyId', companyId);
+
+  const addProspectMutation = useMutation({
+    mutationFn: createProspect,
+    onSuccess: (data) => {
+      setOpen(false);
+    },
+  });
+
+  const updateProspectMutation = useMutation({
+    mutationFn: updateProspect,
+    onSuccess: (data) => {
+      setOpen(false);
+      setSelectedProspect(null);
+      queryClient.invalidateQueries({ queryKey: ['prospects'] });
+    },
+  });
 
   const handleChange = (key: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [key]: value }));
+    setFormData((prev: any) => ({ ...prev, [key]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log(formData);
-    // TODO: send formData to API or state
+    if (isEdit) {
+      // Update prospect logic here
+      const data = { ...formData };
+
+      // do not send updatedAs field
+      delete data.updatedAt;
+
+      updateProspectMutation.mutate({
+        companyId: companyId,
+        prospectId: selectedProspect.prospectId,
+        data,
+      });
+    } else {
+      const data = { ...formData };
+
+      addProspectMutation.mutate({ id: companyId, data });
+    }
   };
 
   const generateOutreachMessage = async () => {
@@ -222,21 +267,27 @@ const AddProspectModal = ({
                 </Field.Root>
 
                 {/* Status */}
-                <Field.Root>
+                {/* <Field.Root>
                   <Field.Label>Status</Field.Label>
                   <Input
                     placeholder="Applied / Interviewing / Offer / Rejected"
                     value={formData.status}
-                    onChange={(e) => handleChange('status', e.target.value)}
+                    onChange={(e: any) =>
+                      handleChange('status', e.target.value)
+                    }
                   />
-                </Field.Root>
+                </Field.Root> */}
+                <StatusSelect
+                  value={[formData.status]}
+                  setValue={(val: any) => handleChange('status', val[0])}
+                />
               </Stack>
             </Dialog.Body>
             <Dialog.Footer>
               <Dialog.ActionTrigger asChild>
                 <Button variant="outline">Cancel</Button>
               </Dialog.ActionTrigger>
-              <Button>Save</Button>
+              <Button onClick={handleSubmit}>Save</Button>
             </Dialog.Footer>
             <Dialog.CloseTrigger asChild>
               <CloseButton size="sm" />
@@ -245,6 +296,48 @@ const AddProspectModal = ({
         </Dialog.Positioner>
       </Portal>
     </Dialog.Root>
+  );
+};
+
+const StatusSelect = ({ value = '', setValue }: any) => {
+  const statusOptions = createListCollection({
+    items: [
+      { label: 'In Progress', value: 'inProgress' },
+      { label: 'Applied', value: 'applied' },
+      { label: 'Interviewing', value: 'interviewing' },
+      { label: 'Offer', value: 'offer' },
+      { label: 'Rejected', value: 'rejected' },
+    ],
+  });
+  return (
+    <Select.Root
+      collection={statusOptions}
+      value={value}
+      onValueChange={(e: any) => setValue(e.value)}
+    >
+      <Select.HiddenSelect />
+      <Select.Label>Select status</Select.Label>
+      <Select.Control>
+        <Select.Trigger>
+          <Select.ValueText placeholder="Select status" />
+        </Select.Trigger>
+        <Select.IndicatorGroup>
+          <Select.Indicator />
+        </Select.IndicatorGroup>
+      </Select.Control>
+      <Portal zIndex={999} disabled>
+        <Select.Positioner>
+          <Select.Content>
+            {statusOptions.items.map((status) => (
+              <Select.Item item={status} key={status.value}>
+                {status.label}
+                <Select.ItemIndicator />
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select.Positioner>
+      </Portal>
+    </Select.Root>
   );
 };
 

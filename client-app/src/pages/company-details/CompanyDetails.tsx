@@ -1,6 +1,6 @@
 import React, { Children, useState } from 'react';
 import { Box, Heading, Flex, Button, IconButton, Tabs } from '@chakra-ui/react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { IoIosArrowBack } from 'react-icons/io';
 import { LuFolder, LuUser } from 'react-icons/lu';
 import ProspectsTab from '@/features/prospects-tab/ProspectsTab';

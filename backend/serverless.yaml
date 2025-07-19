@@ -1,0 +1,220 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: gs2kf
+service: jprospects-backend
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-west-2
+  stage: ${opt:stage, 'dev'} # uses --stage param, defaults to 'dev'
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+        - dynamodb:DeleteItem
+        - dynamodb:Scan
+        - dynamodb:UpdateItem
+      Resource:
+        - arn:aws:dynamodb:us-west-2:*:table/MyTable
+    - Effect: Allow
+      Action:
+        - bedrock:InvokeModel
+      Resource: '*'
+
+functions:
+  createItem:
+    handler: handlers/dynamodb-handler.createItem
+    events:
+      - http:
+          path: items
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
+
+  getItem:
+    handler: handlers/dynamodb-handler.getItem
+    events:
+      - http:
+          path: items/{id}
+          method: get
+          cors: true
+
+  updateItem:
+    handler: handlers/dynamodb-handler.updateItem
+    events:
+      - http:
+          path: items/{id}
+          method: put
+          cors: true
+
+  deleteItem:
+    handler: handlers/dynamodb-handler.deleteItem
+    events:
+      - http:
+          path: items/{id}
+          method: delete
+          cors: true
+
+  listItems:
+    handler: handlers/dynamodb-handler.listItems
+    events:
+      - http:
+          path: items
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
+
+  callClaude:
+    handler: handlers/bedrock-handler.callClaude
+    events:
+      - http:
+          path: bedrock
+          method: post
+
+    # Companies APIs
+  listCompanies:
+    handler: handlers/dynamodb-handler.listCompanies
+    events:
+      - http:
+          path: companies
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
+
+  createCompany:
+    handler: handlers/dynamodb-handler.createCompany
+    events:
+      - http:
+          path: companies
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
+
+  getCompany:
+    handler: handlers/dynamodb-handler.getCompany
+    events:
+      - http:
+          path: companies/{companyId}
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
+
+  updateCompany:
+    handler: handlers/dynamodb-handler.updateCompany
+    events:
+      - http:
+          path: companies/{companyId}
+          method: put
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
+
+  deleteCompany:
+    handler: handlers/dynamodb-handler.deleteCompany
+    events:
+      - http:
+          path: companies/{companyId}
+          method: delete
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
+
+  # Prospects APIs
+  listCompanyProspects:
+    handler: handlers/dynamodb-handler.listCompanyProspects
+    events:
+      - http:
+          path: companies/{companyId}/prospects
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
+
+  createCompanyProspect:
+    handler: handlers/dynamodb-handler.createCompanyProspect
+    events:
+      - http:
+          path: companies/{companyId}/prospects
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
+
+  getCompanyProspect:
+    handler: handlers/dynamodb-handler.getCompanyProspect
+    events:
+      - http:
+          path: companies/{companyId}/prospects/{prospectId}
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
+
+  updateCompanyProspect:
+    handler: handlers/dynamodb-handler.updateCompanyProspect
+    events:
+      - http:
+          path: companies/{companyId}/prospects/{prospectId}
+          method: put
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
+
+  deleteCompanyProspect:
+    handler: handlers/dynamodb-handler.deleteCompanyProspect
+    events:
+      - http:
+          path: companies/{companyId}/prospects/{prospectId}
+          method: delete
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            userPoolArn: arn:aws:cognito-idp:us-west-2:778235243525:userpool/us-west-2_Eu1umpTb9
+
+resources:
+  Resources:
+    MyDynamoDBTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: MyTable
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+custom:
+  authorizer:
+    # dev:
+    #   name: yourAuthLambdaName
+    #   type: request
+    #   resultTtlInSeconds: 0
+    #   identitySource: method.request.header.Authorization
+    # prod:
+    #   name: yourAuthLambdaName
+    #   type: request
+    #   resultTtlInSeconds: 0
+    #   identitySource: method.request.header.Authorization
+    local: null
+
+plugins:
+  - serverless-offline

@@ -50,7 +50,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
               <Dialog.ActionTrigger asChild>
                 <Button variant="outline">Cancel</Button>
               </Dialog.ActionTrigger>
-              <Button>Delete</Button>
+              <Button onClick={handleDelete}>Delete</Button>
             </Dialog.Footer>
             <Dialog.CloseTrigger asChild>
               <CloseButton size="sm" />

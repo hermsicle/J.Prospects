@@ -14,7 +14,16 @@ import '@aws-amplify/ui-react/styles.css';
 
 import { Amplify } from 'aws-amplify';
 
-import { Hub } from 'aws-amplify/utils';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query';
+
+// Create a client
+const queryClient = new QueryClient();
 
 const awsConfig: any = {
   Auth: {
@@ -38,7 +47,9 @@ createRoot(document.getElementById('root')!).render(
   <Authenticator.Provider>
     <Provider>
       <BrowserRouter>
-        <App />
+        <QueryClientProvider client={queryClient}>
+          <App />
+        </QueryClientProvider>
       </BrowserRouter>
     </Provider>
   </Authenticator.Provider>

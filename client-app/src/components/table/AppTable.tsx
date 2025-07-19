@@ -29,6 +29,7 @@ export function AppTable({
   handleDelete = null,
   handleEdit = null,
   deleteActionOnly = false,
+  handleRefresh = () => {},
 }: any) {
   const [search, setSearch] = useState('');
   const [sorting, setSorting] = useState<any>([]);
@@ -79,7 +80,7 @@ export function AppTable({
         </InputGroup>
 
         {/* Refresh data */}
-        <IconButton size="sm" variant={'subtle'}>
+        <IconButton size="sm" variant={'subtle'} onClick={handleRefresh}>
           <FiRefreshCcw />
         </IconButton>
       </Flex>
@@ -167,7 +168,9 @@ export function AppTable({
                     return (
                       <Table.Cell key={cell.id} whiteSpace="nowrap">
                         <Link
-                          to={`/companies/company/${cell.renderValue()}`}
+                          to={`/companies/company/${cell.renderValue()}?id=${
+                            (row.original as { companyId?: string })?.companyId
+                          }`}
                           style={{ textDecoration: 'none' }}
                         >
                           <Box

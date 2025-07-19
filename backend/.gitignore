@@ -1,0 +1,29 @@
+# Node modules
+node_modules/
+package-lock.json
+
+# Serverless build artifacts
+.serverless/
+.sls-next/
+
+# AWS credentials & config (do NOT commit these!)
+.aws-sam/
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDE / OS
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# Test coverage (if you use Jest or similar)
+coverage/
+
+# Optional if using serverless-offline with temp files
+tmp/

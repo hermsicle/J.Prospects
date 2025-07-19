@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Heading,
@@ -11,11 +11,8 @@ import {
 import { AppTable } from '@/components/table/AppTable';
 import AddCompanyModal from '@/features/add-company-modal/AddCompanyModal';
 import DeleteModal from '@/components/modal/DeleteModal';
-/*
-Company Features:
-Table to list all companies
-Button to add company of interest
-*/
+import { deleteCompany, fetchCompanies, updateCompany } from '@/services/apis';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 const columns = [
   {
@@ -23,31 +20,31 @@ const columns = [
     header: 'Company Name',
   },
   {
-    accessorKey: 'prospects',
+    accessorKey: 'prospectCount',
     header: 'Prospects',
   },
   {
-    accessorKey: 'description',
+    accessorKey: 'companyDescription',
     header: 'Description',
   },
-  {
-    accessorKey: 'url',
-    header: 'Website URL',
-    cell: ({ row }: any) => {
-      return (
-        <Box display="flex" flexDirection="column" gap={1}>
-          <Link
-            href={row.original.url}
-            target="__blank"
-            color="blue.500"
-            textDecoration={'underline'}
-          >
-            {row.original.url}
-          </Link>
-        </Box>
-      );
-    },
-  },
+  // {
+  //   accessorKey: 'url',
+  //   header: 'Website URL',
+  //   cell: ({ row }: any) => {
+  //     return (
+  //       <Box display="flex" flexDirection="column" gap={1}>
+  //         <Link
+  //           href={row.original.url}
+  //           target="__blank"
+  //           color="blue.500"
+  //           textDecoration={'underline'}
+  //         >
+  //           {row.original.url}
+  //         </Link>
+  //       </Box>
+  //     );
+  //   },
+  // },
   {
     accessorKey: 'actions',
     header: 'Actions',
@@ -55,40 +52,27 @@ const columns = [
   },
 ];
 
-const data = [
-  {
-    companyName: 'Google',
-    prospects: '3',
-    description: '',
-    url: 'google.com',
-  },
-  { companyName: 'Meta', prospects: '5', description: '', url: '' },
-  {
-    companyName: 'WealthFront',
-    prospects: '12',
-    description: '',
-    url: '',
-  },
-  { companyName: 'Apple', prospects: '1', description: '', url: '' },
-  {
-    companyName: 'Miracle',
-    prospects: '1',
-    description: `
-    Unify your clinical trial systems into one automated dashboard.
-    `,
-    url: 'https://www.miracleml.com/',
-  },
-];
-
 const Companies = () => {
   const { open, onOpen, setOpen } = useDisclosure();
-  const {
-    open: deleteOpen,
-    onOpen: onDeleteOpen,
-    setOpen: setDeleteOpen,
-  } = useDisclosure();
+  const { open: deleteOpen, setOpen: setDeleteOpen } = useDisclosure();
 
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
+
+  const { isFetching, error, data, refetch } = useQuery({
+    queryKey: ['companies'],
+    queryFn: fetchCompanies,
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteCompany,
+    onSuccess: () => {
+      refetch();
+      setDeleteOpen(false);
+    },
+    onError: (error) => {
+      console.error('Error deleting company', error);
+    },
+  });
 
   const toggleDelete = (company: any) => {
     console.log('Delete company', company);
@@ -96,11 +80,19 @@ const Companies = () => {
     setDeleteOpen(true);
   };
 
+  const handleCompanyDelete = () => {
+    deleteMutation.mutate(selectedCompany.companyId);
+  };
+
   const toggleEdit = (company: any) => {
     console.log('Edit company', company);
     setSelectedCompany(company);
     setOpen(true);
   };
+
+  if (isFetching) return <div>Loading...</div>;
+
+  if (error) return <div>Error loading companies</div>;
 
   return (
     <Box>
@@ -117,6 +109,7 @@ const Companies = () => {
             rawData={data}
             handleDelete={toggleDelete}
             handleEdit={toggleEdit}
+            handleRefresh={refetch}
           />
         </Card.Body>
       </Card.Root>
@@ -134,7 +127,7 @@ const Companies = () => {
           open={deleteOpen}
           setOpen={setDeleteOpen}
           title={`Delete ${selectedCompany?.companyName}`}
-          handleDelete={() => {}}
+          handleDelete={handleCompanyDelete}
         />
       )}
     </Box>
