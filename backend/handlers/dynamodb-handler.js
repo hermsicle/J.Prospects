@@ -497,22 +497,16 @@ module.exports.getCompanyKpis = async (event) => {
 
     const totalProspects = result.Items.length;
 
-    /*
-      {   value: 'inProgress' },
-      {   value: 'applied' },
-      {   value: 'interviewing' },
-      {   value: 'offer' },
-      {   value: 'rejected' },
-    */
+    const appliedCount = result.Items.filter(
+      (item) => item.status === 'applied'
+    ).length;
 
-    const inprogressStatusArr = [
-      'inProgress',
-      'applied',
-      'interviewing',
-      'offer',
-    ];
-    const inProgressCount = result.Items.filter((item) =>
-      inprogressStatusArr.includes(item.status)
+    const interviewingCount = result.Items.filter(
+      (item) => item.status === 'interviewing'
+    ).length;
+
+    const offerCount = result.Items.filter(
+      (item) => item.status === 'offer'
     ).length;
 
     const rejectedCount = result.Items.filter(
@@ -521,7 +515,9 @@ module.exports.getCompanyKpis = async (event) => {
 
     const responsePayload = {
       totalProspects,
-      inProgressCount,
+      appliedCount,
+      interviewingCount,
+      offerCount,
       rejectedCount,
       // Add more KPIs calculations here as needed
     };

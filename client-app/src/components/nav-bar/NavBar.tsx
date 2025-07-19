@@ -77,6 +77,7 @@ const NavBar = ({ mobile = false }: any) => {
       bg={useColorModeValue('white', 'gray.800')}
       h="70px"
       display={{ sm: 'none', md: 'flex' }}
+      shadow="sm"
     >
       <Box>
         <Heading size="sm">

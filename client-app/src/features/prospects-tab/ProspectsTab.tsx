@@ -12,6 +12,8 @@ import {
   Stack,
   GridItem,
   Grid,
+  Progress,
+  Text,
 } from '@chakra-ui/react';
 import { AppTable } from '@/components/table/AppTable';
 import AddProspectModal from '../add-prospect-modal/AddProspectModal';
@@ -25,6 +27,9 @@ import {
   FiPlusCircle,
   FiList,
   FiRefreshCw,
+  FiBarChart2,
+  FiUserPlus,
+  FiAward,
 } from 'react-icons/fi';
 import { MdWorkOutline } from 'react-icons/md';
 
@@ -38,6 +43,35 @@ import {
   fetchCompanyKpis,
   listCompanyProspects,
 } from '@/services/apis';
+import { useColorModeValue } from '@/components/ui/color-mode';
+
+const StatusBox = ({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: number;
+  color: string;
+}) => (
+  <Box
+    py={1}
+    px={2}
+    bg={`${color}.50`}
+    borderRadius="md"
+    textAlign="center"
+    fontSize="sm"
+    color={`${color}.600`}
+    display="flex"
+    alignItems="center"
+    gap={1}
+  >
+    <Box fontWeight="bold" fontSize="">
+      {value}
+    </Box>
+    <Box>{label}</Box>
+  </Box>
+);
 
 const ProspectsTab = () => {
   const { open, onOpen, setOpen } = useDisclosure();
@@ -53,50 +87,66 @@ const ProspectsTab = () => {
 
   return (
     <Box>
-      <Grid
-        templateColumns={{
-          base: 'repeat(1, 1fr)', // mobile
-          sm: 'repeat(2, 1fr)', // tablet
-          md: 'repeat(3, 1fr)', // desktop
-        }}
+      <SimpleGrid
+        columns={{ base: 1, sm: 2, lg: 3, '2xl': 6 }}
+        spacing={4}
+        mb={4}
         gap={4}
-        mb={6}
       >
-        <GridItem>
-          <KpiCard header="Total Prospects" data="25" icon={<FiUsers />} />
-        </GridItem>
-        <GridItem>
-          <KpiCard
-            header="New Prospects This Week"
-            data="5"
-            icon={<FiPlusCircle />}
-          />
-        </GridItem>
-        <GridItem>
-          <KpiCard header="Prospects by Status" data="5" icon={<FiList />} />
-        </GridItem>
-        <GridItem>
-          <KpiCard
-            header="Recently Updated Prospects"
-            data="5"
-            icon={<FiRefreshCw />}
-          />
-        </GridItem>
-        <GridItem>
-          <KpiCard
-            header="Interviews Scheduled This Week"
-            data="5"
-            icon={<FiCalendar />}
-          />
-        </GridItem>
-        <GridItem>
-          <KpiCard
-            header="Offers Received This Month"
-            data="5"
-            icon={<MdWorkOutline />}
-          />
-        </GridItem>
-      </Grid>
+        <KpiCard
+          header="Total Prospects"
+          data="25"
+          icon={<FiUsers />}
+          color={useColorModeValue('purple.100', 'purple.200')}
+        />
+
+        <KpiCard
+          header="New Prospects This Week"
+          data="5"
+          icon={<FiUserPlus />}
+          color={useColorModeValue('blue.50', 'blue.200')}
+        />
+
+        <KpiCard
+          header="Recently Updated Prospects"
+          data="4"
+          icon={<FiRefreshCw />}
+          color={useColorModeValue('orange.100', 'orange.200')}
+        />
+
+        <KpiCard
+          header="Prospects by Status"
+          data="5"
+          icon={<FiBarChart2 />}
+          color={useColorModeValue('white', 'gray.200')}
+          children={
+            <SimpleGrid
+              columns={{ base: 2, xl: 2, '2xl': 2, '3xl': 4 }}
+              mt={0}
+              gap={1}
+            >
+              <StatusBox label="Applied" value={8} color="blue" />
+              <StatusBox label="Interview" value={4} color="yellow" />
+              <StatusBox label="Offer" value={1} color="green" />
+              <StatusBox label="Rejected" value={5} color="red" />
+            </SimpleGrid>
+          }
+        />
+
+        <KpiCard
+          header="Interviews Scheduled This Week"
+          data="2"
+          icon={<FiCalendar />}
+          color={useColorModeValue('yellow.50', 'yellow.200')}
+        />
+
+        <KpiCard
+          header="Offers Received This Month"
+          data="1"
+          icon={<FiAward />}
+          color={useColorModeValue('green.50', 'green.200')}
+        />
+      </SimpleGrid>
 
       {/* <ProspectsPieChart /> */}
 

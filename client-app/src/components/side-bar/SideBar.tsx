@@ -22,6 +22,7 @@ import {
   FiSettings,
   FiMenu,
   FiFile,
+  FiCalendar,
 } from 'react-icons/fi';
 import { PiGearFine, PiSignOut, PiToolbox } from 'react-icons/pi';
 
@@ -49,7 +50,9 @@ interface LinkItemProps {
 const LinkItems: Array<LinkItemProps> = [
   { name: 'Home', path: '/home', icon: FiHome },
   { name: 'Companies', path: '/companies', icon: BsBuildings },
+  { name: 'Schedule', path: '/schedule', icon: FiCalendar },
   { name: 'Resumes', path: '/resumes', icon: FiFile },
+
   // { name: 'Settings', path: '/settings', icon: FiCompass },
 ];
 
@@ -102,17 +105,29 @@ const handleSignOut = async () => {
 const SidebarContent = ({ onClose, open, ...rest }: any) => {
   return (
     <Box
-      bg={useColorModeValue('white', 'gray.800')}
+      bg={useColorModeValue('green.50', 'gray.800')}
       w={{ base: 350, md: 250 }}
       pos="fixed"
       h="full"
       // shadow="sm"
       {...rest}
     >
-      <Flex h="20" alignItems="center" mx="6" justifyContent="space-between">
-        <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
+      <Flex
+        h="20"
+        alignItems="center"
+        // mx="6"
+        justifyContent="space-between"
+        // border="1px solid black"
+        // shadow="sm"
+        px="6"
+      >
+        <Text
+          fontSize="2xl"
+          fontFamily="monospace"
+          fontWeight="bold"
+          color={useColorModeValue('green.600', 'green.200')}
+        >
           J.Prospects
-          {/* Short for Job Prospects */}
         </Text>
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
@@ -121,9 +136,9 @@ const SidebarContent = ({ onClose, open, ...rest }: any) => {
         flexDirection={'column'}
         display="flex"
         justifyContent={'space-between'}
-        h="90%"
+        h="92%"
       >
-        <Box>
+        <Box mt="0">
           {LinkItems.map((link) => (
             <NavItem key={link.name} icon={link.icon} path={link.path}>
               {link.name}
@@ -166,18 +181,18 @@ const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
         role="group"
         cursor="pointer"
         _hover={{
-          color: useColorModeValue('blue.500', 'gray.800'),
-          background: useColorModeValue('blue.100', 'gray.800'),
+          color: useColorModeValue('green.600', 'gray.200'),
+          background: useColorModeValue('green.100', 'gray.600'),
         }}
         fontWeight={'500'}
         color={
           location.pathname.startsWith(path)
-            ? useColorModeValue('blue.500', 'gray.800')
-            : ''
+            ? useColorModeValue('green.600', 'gray.200')
+            : useColorModeValue('green.600', 'gray.200')
         }
         backgroundColor={
           location.pathname.startsWith(path)
-            ? useColorModeValue('blue.100', 'gray.800')
+            ? useColorModeValue('green.100', 'gray.600')
             : ''
         }
         {...rest}

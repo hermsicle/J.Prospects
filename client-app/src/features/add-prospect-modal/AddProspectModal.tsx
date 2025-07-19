@@ -43,7 +43,7 @@ const AddProspectModal = ({
             email: '',
             jobListing: '',
           },
-          status: 'inProgress', // Default to In Progress if new prospect
+          status: 'applied', // Default to In Progress if new prospect
           generatedOutreachMessage: '',
           generatedNoteMessage: '',
         }
@@ -303,7 +303,7 @@ const AddProspectModal = ({
 const StatusSelect = ({ value = '', setValue }: any) => {
   const statusOptions = createListCollection({
     items: [
-      { label: 'In Progress', value: 'inProgress' },
+      // { label: 'In Progress', value: 'inProgress' },
       { label: 'Applied', value: 'applied' },
       { label: 'Interviewing', value: 'interviewing' },
       { label: 'Offer', value: 'offer' },
